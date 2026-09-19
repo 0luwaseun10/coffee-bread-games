@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coffee &amp; Bread Food Puzzle</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header class="site-header">
+        <img src="images/coffee-bread-logo.png" alt="Coffee and Bread LLC" class="logo">
+        <p>Honduran &amp; Salvadoran food made with family at heart</p>
+    </header>
+
+    <main class="container">
+        <nav class="breadcrumb" aria-label="Breadcrumb">
+            <span>Games</span><b>›</b><span>Food Puzzle</span>
+        </nav>
+
+        <section id="selectionScreen" class="selection-screen">
+            <div class="page-heading">
+                <p class="eyebrow">Coffee &amp; Bread Games</p>
+                <h1>Choose your puzzle</h1>
+                <p>Complete a puzzle to win a reward.</p>
+            </div>
+
+            <div class="puzzle-options">
+                <button class="food-option" data-puzzle="plato" type="button">
+                    <span class="image-wrap">
+                        <img src="images/plato-tipico.png" alt="Plato Típico">
+                        <span class="hover-label">Play puzzle →</span>
+                    </span>
+                    <span><strong>Plato Típico</strong><small>Easy · Start puzzle →</small></span>
+                </button>
+                <button class="food-option" data-puzzle="pollo" type="button">
+                    <span class="image-wrap">
+                        <img src="images/pollo-tajadas.png" alt="Pollo con Tajadas">
+                        <span class="hover-label">Play puzzle →</span>
+                    </span>
+                    <span><strong>Pollo con Tajadas</strong><small>Hard · Start puzzle →</small></span>
+                </button>
+                <button class="food-option" data-puzzle="pupusas" type="button">
+                    <span class="image-wrap">
+                        <img src="images/pupusas.png" alt="Pupusas">
+                        <span class="hover-label">Play puzzle →</span>
+                    </span>
+                    <span><strong>Pupusas</strong><small>Medium · Start puzzle →</small></span>
+                </button>
+            </div>
+        </section>
+
+        <section id="gameScreen" class="game-screen" hidden>
+            <div class="game-heading">
+                <button id="backButton" class="back-button" type="button">← Choose another dish</button>
+                <div>
+                    <p class="eyebrow">Now playing</p>
+                    <h1 id="puzzleTitle">Plato Típico</h1>
+                </div>
+                <div class="move-count"><strong id="moveCount">0</strong><span>Moves</span></div>
+            </div>
+
+            <div class="puzzle-container">
+                <div id="puzzle" class="puzzle" role="grid" aria-label="Sliding food puzzle"></div>
+                <aside class="side">
+                    <div class="main-image">
+                        <p>Finished picture</p>
+                        <img id="previewImage" src="images/plato-tipico.png" alt="Completed puzzle">
+                    </div>
+                    <p class="instructions">Select a piece next to the empty space. Keep moving until the picture matches the finished image.</p>
+                    <button id="restartButton" class="action-button secondary" type="button">Shuffle again</button>
+                </aside>
+            </div>
+        </section>
+    </main>
+
+    <div id="winModal" class="modal" hidden role="dialog" aria-modal="true" aria-labelledby="winTitle">
+        <div class="modal-content">
+            <p class="eyebrow">Puzzle complete</p>
+            <h2 id="winTitle">You solved it!</h2>
+            <p>You completed <strong id="completedDish">Plato Típico</strong> in <strong id="finalMoves">0</strong> moves.</p>
+
+            <div class="reward-area">
+                <p>Prototype reward</p>
+                <button id="revealRewardButton" class="action-button" type="button">Reveal reward</button>
+                <div id="rewardResult" class="reward-result" hidden>
+                    <small>Reward code</small>
+                    <strong id="rewardCode">CB-0000</strong>
+                    <p>The final offer will be selected with Coffee &amp; Bread before launch.</p>
+                </div>
+            </div>
+
+            <div class="modal-actions">
+                <button id="playAgainButton" class="action-button" type="button">Play again</button>
+                <button id="choosePuzzleButton" class="action-button secondary" type="button">Choose another puzzle</button>
+            </div>
+        </div>
+    </div>
+
+    <footer>Coffee &amp; Bread Games Prototype · George Mason University Team 5</footer>
+    <script src="script.js"></script>
+</body>
+</html>
