@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coffee &amp; Bread Food Puzzle</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <main class="game-app">
+        <section id="selectionScreen" class="selection-screen">
+            <header class="selection-header">
+                <h1>Coffee &amp; Bread Food Puzzle</h1>
+                <p class="intro">Choose a picture, solve the 3×3 sliding puzzle, and complete the game to unlock today’s reward.</p>
+            </header>
+
+            <div class="puzzle-options">
+                <button class="food-option" data-puzzle="plato" type="button">
+                    <span class="image-wrap">
+                        <img src="images/plato-tipico.png" alt="Plato Típico">
+                        <span class="hover-label">Play puzzle →</span>
+                    </span>
+                    <span class="food-copy">
+                        <strong>Plato Típico</strong>
+                        <small>Easy · Start puzzle →</small>
+                    </span>
+                </button>
+
+                <button class="food-option" data-puzzle="pollo" type="button">
+                    <span class="image-wrap">
+                        <img src="images/pollo-tajadas.png" alt="Pollo con Tajadas">
+                        <span class="hover-label">Play puzzle →</span>
+                    </span>
+                    <span class="food-copy">
+                        <strong>Pollo con Tajadas</strong>
+                        <small>Medium · Start puzzle →</small>
+                    </span>
+                </button>
+
+                <button class="food-option" data-puzzle="pupusas" type="button">
+                    <span class="image-wrap">
+                        <img src="images/pupusas.png" alt="Pupusas">
+                        <span class="hover-label">Play puzzle →</span>
+                    </span>
+                    <span class="food-copy">
+                        <strong>Pupusas</strong>
+                        <small>Easy · Start puzzle →</small>
+                    </span>
+                </button>
+
+                <button class="food-option" data-puzzle="truck" type="button">
+                    <span class="image-wrap">
+                        <img src="images/coffee-bread-truck.jpg" alt="Coffee &amp; Bread food truck">
+                        <span class="hover-label">Play puzzle →</span>
+                    </span>
+                    <span class="food-copy">
+                        <strong>Coffee &amp; Bread Truck</strong>
+                        <small>Easy · Start puzzle →</small>
+                    </span>
+                </button>
+            </div>
+        </section>
+
+        <section id="gameScreen" class="game-screen" hidden>
+            <div class="game-header">
+                <button id="backButton" class="small-button secondary" type="button">← Choose another picture</button>
+                <div class="game-title-block">
+                    <p class="eyebrow">Now playing</p>
+                    <h1 id="puzzleTitle">Pupusas</h1>
+                </div>
+                <p class="move-line"><strong id="moveCount">0</strong><span>moves</span></p>
+            </div>
+
+            <div class="progress-wrap" aria-label="Puzzle progress">
+                <div class="progress-text"><span>Picture progress</span><strong id="progressText">0%</strong></div>
+                <div class="progress-track"><span id="progressBar"></span></div>
+            </div>
+
+            <div class="play-layout">
+                <div class="puzzle-column">
+                    <div id="puzzle" class="puzzle" role="grid" aria-label="Sliding food puzzle"></div>
+                </div>
+
+                <aside class="side-panel">
+                    <div class="preview-card">
+                        <p>Finished picture</p>
+                        <img id="previewImage" src="images/pupusas.png" alt="Completed puzzle">
+                    </div>
+
+                    <p class="instructions">Move a piece beside the empty space.<br>Highlighted pieces can move next.</p>
+
+                    <div class="side-actions">
+                        <button id="hintButton" type="button">Show a helpful move</button>
+                        <button id="restartButton" class="secondary" type="button">Shuffle again</button>
+                    </div>
+                </aside>
+            </div>
+        </section>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>
