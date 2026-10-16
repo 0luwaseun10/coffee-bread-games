@@ -3,32 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Coffee & Bread - Fresh Catch</title>
-
-    <!-- CSS Link: Points into the css/ folder -->
+    <title>Pupusa Catcher Game</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-
     <div class="game-container">
-        <h1>COFFEE & BREAD</h1>
-        <h2>Fresh Catch</h2>
-
+        <h1>Coffee & Bread</h1>
+        <h2>Pupusa Catcher Game</h2>
+        
         <div class="game-info">
-            <div>Score: <span id="score">0</span></div>
-            <div>Lives: <span id="lives">❤️ ❤️ ❤️</span></div>
+            <div id="score-container">Score: <span id="score">0</span></div>
+            <div id="lives-container">Lives: <span id="lives">❤️ ❤️ ❤️</span></div>
         </div>
 
+        <!-- Canvas resolution scaled for sharp mobile/desktop rendering -->
         <canvas id="gameCanvas" width="800" height="700"></canvas>
 
         <div class="instructions">
-            <p>Drag your finger or use ← and → Arrow Keys to move the basket.</p>
-            <p>Catch fresh ingredients and avoid spoiled food!</p>
+            <p>Drag your finger or use Left/Right Arrow Keys to move</p>
             <p>Tap or press R to restart when game over</p>
         </div>
     </div>
 
-    <!-- JavaScript Link: Points into the js/ folder -->
     <script src="js/game.js"></script>
 </body>
 </html>
