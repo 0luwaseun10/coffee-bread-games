@@ -24,7 +24,7 @@ body {
 
 h1 {
     margin: 0;
-    font-size: clamp(26px, 5vw, 36px); /* Scales gracefully on smaller phones */
+    font-size: clamp(26px, 5vw, 36px);
     color: #5a3825;
 }
 
@@ -38,7 +38,7 @@ h2 {
 .game-info {
     display: flex;
     justify-content: space-between;
-    width: 100%; /* Adapts to container width */
+    width: 100%;
     margin: 0 auto 10px auto;
     padding: 10px 15px;
     background-color: #eee2d0;
@@ -56,7 +56,7 @@ h2 {
     touch-action: none; /* Crucial: prevents mobile browser scrolling/zooming while playing */
     cursor: pointer;
     width: 100%;        /* Stretches canvas to fill mobile container width */
-    max-width: 800px;   /* Matches internal resolution width */
+    max-width: 800px;   
     height: auto;       /* Maintains proper aspect ratio */
 }
 
