@@ -431,23 +431,29 @@ function drawGameOver() {
     ctx.fillText("Score: " + score, canvas.width / 2, canvas.height / 2);
 
     ctx.font = "20px Arial";
-    ctx.fillText("Tap or Press R to play again", canvas.width / 2, canvas.height / 2 + 50);
+    ctx.fillText("Tap or Press R to Play Again", canvas.width / 2, canvas.height / 2 + 50);
 }
 
-function restartGame() {
-    score = 0;
-    lives = 3;
-    gameOver = false;
-    ingredients = [];
-    createInitialIngredients();
-    updateScoreDisplay();
-    updateLivesDisplay();
+// Make sure restart works reliably on both click and touch anywhere on the canvas or body when game is over
+function handleRestartTrigger(event) {
+    if (gameOver && score < WIN_SCORE) {
+        // If the daily reward screen is open, don't trigger canvas restart
+        const rewardScreen = document.getElementById("coffeeBreadRewardScreen");
+        if (!rewardScreen) {
+            event.preventDefault();
+            restartGame();
+        }
+    }
 }
 
-// Keyboard and Tap Restart Support
+// Listen for clicks and touches globally or on the canvas when game over
+canvas.addEventListener("click", handleRestartTrigger);
+canvas.addEventListener("touchend", handleRestartTrigger);
+
+// Keyboard restart support
 document.addEventListener("keydown", function(event) {
-    if (event.key.toLowerCase() === "r" && gameOver && score < WIN_SCORE) {
-        restartGame();
+    if (event.key.toLowerCase() === "r") {
+        handleRestartTrigger(event);
     }
 });
 
