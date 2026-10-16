@@ -1,6 +1,7 @@
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
+// Using direct raw GitHub URLs to prevent Wix iframe path/loading failures
 const basketImg = new Image();
 basketImg.src = "https://raw.githubusercontent.com/0luwaseun10/coffee-bread-games/main/C&B_FreshCatch/Images/basket.png";
 
@@ -10,7 +11,7 @@ pupusaImg.src = "https://raw.githubusercontent.com/0luwaseun10/coffee-bread-game
 let score = 0;
 let lives = 3;
 let gameOver = false;
-let gameStarted = false; // Tracks if the game has begun
+let gameStarted = false; // Tracks if start screen has been completed
 
 const COFFEE_BREAD_REWARD_LENGTH = 30 * 1000; // 30 minutes in ms
 const WIN_SCORE = 100; // Score goal needed to unlock reward
@@ -57,7 +58,7 @@ function showStartScreen(onStart) {
 
     screen.innerHTML = `
         <div class="cb-reward-card">
-            <h2>INGREDIENTS CATCHER</h2>
+            <h2>PUPUSA CATCHER</h2>
             <p>Catch the delicious food items!</p>
             <p>Avoid the spoiled items and gross food.</p>
             <p>Reach <b>${WIN_SCORE} points</b> to win your daily reward.</p>
@@ -168,6 +169,7 @@ function getCanvasCoordinates(clientX) {
 
 // --- TOUCH EVENT LISTENERS ---
 canvas.addEventListener("touchstart", function(event) {
+    if (!gameStarted || gameOver) return;
     event.preventDefault();
     if (event.touches.length > 0) {
         isTouching = true;
@@ -176,6 +178,7 @@ canvas.addEventListener("touchstart", function(event) {
 }, { passive: false });
 
 canvas.addEventListener("touchmove", function(event) {
+    if (!gameStarted || gameOver) return;
     event.preventDefault();
     if (event.touches.length > 0 && isTouching) {
         targetX = getCanvasCoordinates(event.touches[0].clientX) - player.width / 2;
@@ -183,12 +186,12 @@ canvas.addEventListener("touchmove", function(event) {
 }, { passive: false });
 
 canvas.addEventListener("touchend", function(event) {
-    event.preventDefault();
     isTouching = false;
 });
 
 // --- MOUSE EVENT LISTENERS (Desktop fallback) ---
 canvas.addEventListener("mousedown", function(event) {
+    if (!gameStarted || gameOver) return;
     isMouseDown = true;
     targetX = getCanvasCoordinates(event.clientX) - player.width / 2;
 });
@@ -226,26 +229,17 @@ const ingredientTypes = [
 let ingredients = [];
 
 document.addEventListener("keydown", function(event) {
-    if (event.key === "ArrowLeft") {
-        keys.left = true;
-    }
-    if (event.key === "ArrowRight") {
-        keys.right = true;
-    }
+    if (event.key === "ArrowLeft") keys.left = true;
+    if (event.key === "ArrowRight") keys.right = true;
 });
 
 document.addEventListener("keyup", function(event) {
-    if (event.key === "ArrowLeft") {
-        keys.left = false;
-    }
-    if (event.key === "ArrowRight") {
-        keys.right = false;
-    }
+    if (event.key === "ArrowLeft") keys.left = false;
+    if (event.key === "ArrowRight") keys.right = false;
 });
 
 function createIngredient() {
     const type = ingredientTypes[Math.floor(Math.random() * ingredientTypes.length)];
-
     const itemWidth = type.width || 60;
     const itemHeight = type.height || 60;
 
@@ -434,10 +428,19 @@ function drawGameOver() {
     ctx.fillText("Tap or Press R to Play Again", canvas.width / 2, canvas.height / 2 + 50);
 }
 
-// Make sure restart works reliably on both click and touch anywhere on the canvas or body when game is over
-function handleRestartTrigger(event) {
+function restartGame() {
+    score = 0;
+    lives = 3;
+    gameOver = false;
+    ingredients = [];
+    createInitialIngredients();
+    updateScoreDisplay();
+    updateLivesDisplay();
+}
+
+// Dedicated restart trigger strictly for Game Over losses
+function handleCanvasRestart(event) {
     if (gameOver && score < WIN_SCORE) {
-        // If the daily reward screen is open, don't trigger canvas restart
         const rewardScreen = document.getElementById("coffeeBreadRewardScreen");
         if (!rewardScreen) {
             event.preventDefault();
@@ -446,25 +449,17 @@ function handleRestartTrigger(event) {
     }
 }
 
-// Listen for clicks and touches globally or on the canvas when game over
-canvas.addEventListener("click", handleRestartTrigger);
-canvas.addEventListener("touchend", handleRestartTrigger);
+canvas.addEventListener("click", handleCanvasRestart);
+canvas.addEventListener("touchend", handleCanvasRestart);
 
-// Keyboard restart support
+// Keyboard restart support (R key)
 document.addEventListener("keydown", function(event) {
     if (event.key.toLowerCase() === "r") {
-        handleRestartTrigger(event);
-    }
-});
-
-canvas.addEventListener("click", function() {
-    if (gameOver && score < WIN_SCORE) {
-        restartGame();
+        handleCanvasRestart(event);
     }
 });
 
 function gameLoop() {
-    // Only update elements if the game has started and isn't over
     if (gameStarted && !gameOver) {
         updatePlayer();
         updateIngredients();
@@ -474,7 +469,7 @@ function gameLoop() {
     requestAnimationFrame(gameLoop);
 }
 
-// Initialize display and trigger Start Menu on load
+// Initial UI setup and trigger start screen
 updateScoreDisplay();
 updateLivesDisplay();
 
