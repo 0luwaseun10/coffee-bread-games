@@ -2,10 +2,10 @@ const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
 const basketImg = new Image();
-basketImg.src = "images/basket.png";
+basketImg.src = "C&B_FreshCatch/Images/basket.png";
 
 const pupusaImg = new Image();
-pupusaImg.src = "images/pupusa.png";
+pupusaImg.src = "C&B_FreshCatch/Images/pupusa.png";
 
 let score = 0;
 let lives = 3;
