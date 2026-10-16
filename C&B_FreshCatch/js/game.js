@@ -1,41 +1,19 @@
-// ==========================================
-// COFFEE & BREAD - FRESH CATCH
-// Good vs. Rotten Ingredients + Lives + Rewards
-// ==========================================
-
-
-// ==========================================
-// CANVAS
-// ==========================================
-
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
-
-// ==========================================
-// GAME VARIABLES & ASSETS
-// ==========================================
-
-// Load Basket Image
 const basketImg = new Image();
 basketImg.src = "images/basket.png";
 
-// Load Pupusa Image
 const pupusaImg = new Image();
 pupusaImg.src = "images/pupusa.png";
 
 let score = 0;
 let lives = 3;
 let gameOver = false;
+let gameStarted = false; // Tracks if the game has begun
 
-// Reward & Win Constants
 const COFFEE_BREAD_REWARD_LENGTH = 30 * 1000; // 30 minutes in ms
 const WIN_SCORE = 100; // Score goal needed to unlock reward
-
-
-// ==========================================
-// REWARD SYSTEM LOGIC
-// ==========================================
 
 function getCoffeeBreadRewardKey() {
     const today = new Date().toLocaleDateString("en-CA");
@@ -66,6 +44,33 @@ function formatCoffeeBreadCountdown(milliseconds) {
     const minutes = Math.floor(totalSeconds / 60);
     const seconds = totalSeconds % 60;
     return minutes + ":" + String(seconds).padStart(2, "0");
+}
+
+// --- START MENU SCREEN ---
+function showStartScreen(onStart) {
+    const oldScreen = document.getElementById("startScreen");
+    if (oldScreen) oldScreen.remove();
+
+    const screen = document.createElement("div");
+    screen.id = "startScreen";
+    screen.className = "cb-reward-screen";
+
+    screen.innerHTML = `
+        <div class="cb-reward-card">
+            <h2>INGREDIENTS CATCHER</h2>
+            <p>Catch the delicious food items!</p>
+            <p>Avoid the spoiled items and gross food.</p>
+            <p>Reach <b>${WIN_SCORE} points</b> to win your daily reward.</p>
+            <button id="cbStartGame">START GAME</button>
+        </div>
+    `;
+
+    document.body.appendChild(screen);
+
+    document.getElementById("cbStartGame").addEventListener("click", function() {
+        screen.remove();
+        if (onStart) onStart();
+    });
 }
 
 function showCoffeeBreadCompletion(onPlayAgain) {
@@ -137,11 +142,6 @@ function showCoffeeBreadCompletion(onPlayAgain) {
     });
 }
 
-
-// ==========================================
-// PLAYER
-// ==========================================
-
 const player = {
     x: canvas.width / 2 - 70,
     y: canvas.height - 90,
@@ -150,23 +150,59 @@ const player = {
     speed: 11
 };
 
-
-// ==========================================
-// KEYBOARD CONTROLS
-// ==========================================
-
 const keys = {
     left: false,
     right: false
 };
 
+// Touch & Mouse Control Variables
+let targetX = player.x;
+let isTouching = false;
+let isMouseDown = false;
 
-// ==========================================
-// INGREDIENT TYPES
-// ==========================================
+function getCanvasCoordinates(clientX) {
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    return (clientX - rect.left) * scaleX;
+}
+
+// --- TOUCH EVENT LISTENERS ---
+canvas.addEventListener("touchstart", function(event) {
+    event.preventDefault();
+    if (event.touches.length > 0) {
+        isTouching = true;
+        targetX = getCanvasCoordinates(event.touches[0].clientX) - player.width / 2;
+    }
+}, { passive: false });
+
+canvas.addEventListener("touchmove", function(event) {
+    event.preventDefault();
+    if (event.touches.length > 0 && isTouching) {
+        targetX = getCanvasCoordinates(event.touches[0].clientX) - player.width / 2;
+    }
+}, { passive: false });
+
+canvas.addEventListener("touchend", function(event) {
+    event.preventDefault();
+    isTouching = false;
+});
+
+// --- MOUSE EVENT LISTENERS (Desktop fallback) ---
+canvas.addEventListener("mousedown", function(event) {
+    isMouseDown = true;
+    targetX = getCanvasCoordinates(event.clientX) - player.width / 2;
+});
+
+window.addEventListener("mousemove", function(event) {
+    if (!isMouseDown) return;
+    targetX = getCanvasCoordinates(event.clientX) - player.width / 2;
+});
+
+window.addEventListener("mouseup", function() {
+    isMouseDown = false;
+});
 
 const ingredientTypes = [
-    // Good Ingredients
     { 
         name: "Pupusa", 
         img: pupusaImg, 
@@ -187,17 +223,7 @@ const ingredientTypes = [
     { name: "Spoiled Food", emoji: "🤢", type: "bad", points: 0 }
 ];
 
-
-// ==========================================
-// INGREDIENT ARRAY
-// ==========================================
-
 let ingredients = [];
-
-
-// ==========================================
-// KEYBOARD INPUT
-// ==========================================
 
 document.addEventListener("keydown", function(event) {
     if (event.key === "ArrowLeft") {
@@ -216,11 +242,6 @@ document.addEventListener("keyup", function(event) {
         keys.right = false;
     }
 });
-
-
-// ==========================================
-// CREATE INGREDIENT
-// ==========================================
 
 function createIngredient() {
     const type = ingredientTypes[Math.floor(Math.random() * ingredientTypes.length)];
@@ -244,28 +265,26 @@ function createIngredient() {
     ingredients.push(ingredient);
 }
 
-
-// ==========================================
-// CREATE INITIAL INGREDIENTS
-// ==========================================
-
 function createInitialIngredients() {
     for (let i = 0; i < 5; i++) {
         createIngredient();
     }
 }
 
-
-// ==========================================
-// UPDATE PLAYER
-// ==========================================
-
 function updatePlayer() {
     if (keys.left) {
         player.x -= player.speed;
+        targetX = player.x;
     }
     if (keys.right) {
         player.x += player.speed;
+        targetX = player.x;
+    }
+
+    // Smooth drag tracking interpolation (lerp)
+    if (isTouching || isMouseDown) {
+        const dx = targetX - player.x;
+        player.x += dx * 0.2;
     }
 
     if (player.x < 0) {
@@ -275,11 +294,6 @@ function updatePlayer() {
         player.x = canvas.width - player.width;
     }
 }
-
-
-// ==========================================
-// COLLISION DETECTION (CATCH FROM TOP ONLY)
-// ==========================================
 
 function checkCollision(player, ingredient) {
     const ingredientBottom = ingredient.y + ingredient.height;
@@ -293,11 +307,6 @@ function checkCollision(player, ingredient) {
         ingredientBottom <= basketTop + basketRimThickness
     );
 }
-
-
-// ==========================================
-// UPDATE INGREDIENTS
-// ==========================================
 
 function updateIngredients() {
     for (let i = ingredients.length - 1; i >= 0; i--) {
@@ -341,11 +350,6 @@ function updateIngredients() {
     }
 }
 
-
-// ==========================================
-// DRAW PLAYER (BASKET)
-// ==========================================
-
 function drawPlayer() {
     if (basketImg.complete && basketImg.naturalWidth !== 0) {
         ctx.drawImage(
@@ -363,11 +367,6 @@ function drawPlayer() {
         ctx.fillRect(player.x - 5, player.y, player.width + 10, 8);
     }
 }
-
-
-// ==========================================
-// DRAW INGREDIENTS
-// ==========================================
 
 function drawIngredients() {
     for (const ingredient of ingredients) {
@@ -391,11 +390,6 @@ function drawIngredients() {
     }
 }
 
-
-// ==========================================
-// SCORE & LIVES DISPLAY
-// ==========================================
-
 function updateScoreDisplay() {
     const scoreElement = document.getElementById("score");
     scoreElement.textContent = score;
@@ -409,11 +403,6 @@ function updateLivesDisplay() {
         livesElement.textContent = "💔";
     }
 }
-
-
-// ==========================================
-// DRAW GAME
-// ==========================================
 
 function drawGame() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -429,11 +418,6 @@ function drawGame() {
     }
 }
 
-
-// ==========================================
-// GAME OVER SCREEN (LOSS ONLY)
-// ==========================================
-
 function drawGameOver() {
     ctx.fillStyle = "rgba(0, 0, 0, 0.65)";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -447,13 +431,8 @@ function drawGameOver() {
     ctx.fillText("Score: " + score, canvas.width / 2, canvas.height / 2);
 
     ctx.font = "20px Arial";
-    ctx.fillText("Press R to play again", canvas.width / 2, canvas.height / 2 + 50);
+    ctx.fillText("Tap or Press R to play again", canvas.width / 2, canvas.height / 2 + 50);
 }
-
-
-// ==========================================
-// RESTART GAME
-// ==========================================
 
 function restartGame() {
     score = 0;
@@ -465,19 +444,22 @@ function restartGame() {
     updateLivesDisplay();
 }
 
+// Keyboard and Tap Restart Support
 document.addEventListener("keydown", function(event) {
     if (event.key.toLowerCase() === "r" && gameOver && score < WIN_SCORE) {
         restartGame();
     }
 });
 
-
-// ==========================================
-// GAME LOOP & START
-// ==========================================
+canvas.addEventListener("click", function() {
+    if (gameOver && score < WIN_SCORE) {
+        restartGame();
+    }
+});
 
 function gameLoop() {
-    if (!gameOver) {
+    // Only update elements if the game has started and isn't over
+    if (gameStarted && !gameOver) {
         updatePlayer();
         updateIngredients();
     }
@@ -486,7 +468,13 @@ function gameLoop() {
     requestAnimationFrame(gameLoop);
 }
 
-createInitialIngredients();
+// Initialize display and trigger Start Menu on load
 updateScoreDisplay();
 updateLivesDisplay();
+
+showStartScreen(function() {
+    gameStarted = true;
+    createInitialIngredients();
+});
+
 gameLoop();
