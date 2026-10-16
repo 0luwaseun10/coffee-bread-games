@@ -2,10 +2,10 @@ const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
 const basketImg = new Image();
-basketImg.src = "C&B_FreshCatch/Images/basket.png";
+basketImg.src = "https://raw.githubusercontent.com/0luwaseun10/coffee-bread-games/main/C&B_FreshCatch/Images/basket.png";
 
 const pupusaImg = new Image();
-pupusaImg.src = "C&B_FreshCatch/Images/pupusa.png";
+pupusaImg.src = "https://raw.githubusercontent.com/0luwaseun10/coffee-bread-games/main/C&B_FreshCatch/Images/pupusa.png";
 
 let score = 0;
 let lives = 3;
