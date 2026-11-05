@@ -112,8 +112,8 @@ function showCoffeeBreadCompletion(onPlayAgain) {
                     Completed: ${formatCoffeeBreadTime(completedAt)}
                 </p>
                 <p class="cb-countdown" id="cbCountdown"></p>
-                <p>Show this live screen for one free drink</p>
-                <p>with a $10+ food order.</p>
+                <p>Show this live screen at the window for one</p>
+                <p>free daily reward with a $10+ purchase.</p>
                 <button id="cbPlayAgain">PLAY AGAIN</button>
             </div>
         `;
