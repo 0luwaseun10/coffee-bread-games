@@ -58,7 +58,7 @@ function showStartScreen(onStart) {
 
     screen.innerHTML = `
         <div class="cb-reward-card">
-            <h2>PUPUSA CATCHER</h2>
+            <h2>FRESH CATCH</h2>
             <p>Catch the delicious food items!</p>
             <p>Avoid the spoiled items and gross food.</p>
             <p>Reach <b>${WIN_SCORE} points</b> to win your daily reward.</p>
