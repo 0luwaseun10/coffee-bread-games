@@ -103,40 +103,16 @@ const ingredients = [
     }
 ];
 
-// Three levels, hardest first. A new game always starts on Level 1
-// (25 pieces). After a miss, the next try drops one level easier,
-// down to Level 3 (15 pieces), which repeats until the player wins.
+// Five levels played in order: 5, 10, 15, 20, then 25 pieces.
+// Clearing a level moves the player to the next one. The reward is
+// only given after Level 5 (25 pieces). Any miss restarts at Level 1.
+// Patties move faster and landings must be more precise each level.
 const levels = [
-    {
-        name: "Hard",
-        pieces: 25,
-        baseSpeed: 4,
-        speedStep: 0.4,
-        maxSpeed: 12,
-        baseOverlap: 0.74,
-        overlapStep: 0.006,
-        maxOverlap: 0.88
-    },
-    {
-        name: "Medium",
-        pieces: 20,
-        baseSpeed: 3.4,
-        speedStep: 0.35,
-        maxSpeed: 10.5,
-        baseOverlap: 0.72,
-        overlapStep: 0.006,
-        maxOverlap: 0.85
-    },
-    {
-        name: "Easy",
-        pieces: 15,
-        baseSpeed: 2.8,
-        speedStep: 0.35,
-        maxSpeed: 9,
-        baseOverlap: 0.7,
-        overlapStep: 0.008,
-        maxOverlap: 0.82
-    }
+    { pieces: 5,  baseSpeed: 3,   speedStep: 0.5,  maxSpeed: 6,  baseOverlap: 0.68, overlapStep: 0.01,  maxOverlap: 0.74 },
+    { pieces: 10, baseSpeed: 3.5, speedStep: 0.45, maxSpeed: 8,  baseOverlap: 0.7,  overlapStep: 0.008, maxOverlap: 0.78 },
+    { pieces: 15, baseSpeed: 4,   speedStep: 0.4,  maxSpeed: 9.5, baseOverlap: 0.72, overlapStep: 0.007, maxOverlap: 0.82 },
+    { pieces: 20, baseSpeed: 4.5, speedStep: 0.38, maxSpeed: 11, baseOverlap: 0.74, overlapStep: 0.006, maxOverlap: 0.85 },
+    { pieces: 25, baseSpeed: 5,   speedStep: 0.35, maxSpeed: 12.5, baseOverlap: 0.76, overlapStep: 0.005, maxOverlap: 0.88 }
 ];
 
 let levelIndex = 0;
@@ -403,7 +379,10 @@ function update() {
                 if (score === targetPieces) {
                     currentIngredient = null;
 
-                    if (getTodayReward()) {
+                    if (levelIndex < levels.length - 1) {
+                        gameStatus = "levelComplete";
+                        dropButton.textContent = "NEXT LEVEL";
+                    } else if (getTodayReward()) {
                         gameStatus = "dailyLimit";
                         rewardClaim = null;
                     } else {
@@ -411,7 +390,9 @@ function update() {
                         gameStatus = "won";
                     }
 
-                    dropButton.textContent = "PLAY AGAIN";
+                    if (gameStatus !== "levelComplete") {
+                        dropButton.textContent = "PLAY AGAIN";
+                    }
                 } else {
                     createIngredient();
                 }
@@ -501,8 +482,8 @@ function draw() {
     ctx.fillText(
         "Level " +
             (levelIndex + 1) +
-            ": " +
-            level.name,
+            " of " +
+            levels.length,
         canvas.width - 20,
         35
     );
@@ -583,6 +564,41 @@ function draw() {
         }
     }
 
+    if (gameStatus === "levelComplete") {
+        const nextLevel = levels[levelIndex + 1];
+
+        ctx.textAlign = "center";
+        ctx.fillStyle = "#ed302b";
+        ctx.font = "bold 30px Arial";
+
+        ctx.fillText(
+            "LEVEL " + (levelIndex + 1) + " COMPLETE!",
+            canvas.width / 2,
+            85
+        );
+
+        ctx.fillStyle = "#4a2c17";
+        ctx.font = "bold 18px Arial";
+
+        ctx.fillText(
+            "Next: Level " +
+                (levelIndex + 2) +
+                " with " +
+                nextLevel.pieces +
+                " pieces",
+            canvas.width / 2,
+            118
+        );
+
+        ctx.fillText(
+            "Finish all " +
+                levels.length +
+                " levels to win the reward!",
+            canvas.width / 2,
+            143
+        );
+    }
+
     if (gameStatus === "dailyLimit") {
         ctx.textAlign = "center";
         ctx.fillStyle = "#ed302b";
@@ -643,19 +659,13 @@ function draw() {
             330
         );
 
-        if (levelIndex < levels.length - 1) {
-            const nextLevel = levels[levelIndex + 1];
-
-            ctx.fillText(
-                "Next try: Level " +
-                    (levelIndex + 2) +
-                    " (" +
-                    nextLevel.pieces +
-                    " pieces)",
-                canvas.width / 2,
-                365
-            );
-        }
+        ctx.fillText(
+            "Back to Level 1 (" +
+                levels[0].pieces +
+                " pieces)",
+            canvas.width / 2,
+            365
+        );
     }
 }
 
@@ -674,12 +684,12 @@ function handleButtonPress() {
         ) {
             currentIngredient.falling = true;
         }
-    } else if (gameStatus === "lost") {
-        // Step down to an easier level after a miss.
+    } else if (gameStatus === "levelComplete") {
+        // Move on to the next, bigger burger.
         setLevel(levelIndex + 1);
         resetGame();
     } else {
-        // After a win, start over from the hardest level.
+        // After a miss or a finished run, start over at Level 1.
         setLevel(0);
         resetGame();
     }
