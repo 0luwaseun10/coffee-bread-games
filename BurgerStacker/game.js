@@ -103,8 +103,45 @@ const ingredients = [
     }
 ];
 
-const burgerSizes = [5, 8, 10];
-let targetPieces = 5;
+// Three levels, hardest first. A new game always starts on Level 1
+// (25 pieces). After a miss, the next try drops one level easier,
+// down to Level 3 (15 pieces), which repeats until the player wins.
+const levels = [
+    {
+        name: "Hard",
+        pieces: 25,
+        baseSpeed: 4,
+        speedStep: 0.4,
+        maxSpeed: 12,
+        baseOverlap: 0.74,
+        overlapStep: 0.006,
+        maxOverlap: 0.88
+    },
+    {
+        name: "Medium",
+        pieces: 20,
+        baseSpeed: 3.4,
+        speedStep: 0.35,
+        maxSpeed: 10.5,
+        baseOverlap: 0.72,
+        overlapStep: 0.006,
+        maxOverlap: 0.85
+    },
+    {
+        name: "Easy",
+        pieces: 15,
+        baseSpeed: 2.8,
+        speedStep: 0.35,
+        maxSpeed: 9,
+        baseOverlap: 0.7,
+        overlapStep: 0.008,
+        maxOverlap: 0.82
+    }
+];
+
+let levelIndex = 0;
+let level = levels[levelIndex];
+let targetPieces = level.pieces;
 
 let stack;
 let currentIngredient;
@@ -112,7 +149,7 @@ let score;
 let gameStatus;
 let rewardClaim;
 
-const REWARD_LENGTH_MS = 30 * 1000;
+const REWARD_LENGTH_MS = 30 * 60 * 1000; // 30 minutes
 
 function getTodayRewardKey() {
     const now = new Date();
@@ -182,16 +219,14 @@ function formatCountdown(milliseconds) {
     );
 }
 
-function chooseNextBurgerSize() {
-    const availableSizes = burgerSizes.filter(
-        size => size !== targetPieces
+function setLevel(index) {
+    levelIndex = Math.max(
+        0,
+        Math.min(levels.length - 1, index)
     );
 
-    const randomIndex = Math.floor(
-        Math.random() * availableSizes.length
-    );
-
-    targetPieces = availableSizes[randomIndex];
+    level = levels[levelIndex];
+    targetPieces = level.pieces;
 }
 
 function resetGame() {
@@ -233,8 +268,8 @@ function createIngredient() {
     }
 
     const increasingSpeed = Math.min(
-        9,
-        2.2 + score * 0.9
+        level.maxSpeed,
+        level.baseSpeed + score * level.speedStep
     );
 
     const randomExtraSpeed = Math.random() * 0.35;
@@ -330,8 +365,9 @@ function update() {
                 overlapWidth / smallerWidth;
 
             const requiredOverlap = Math.min(
-                0.82,
-                0.68 + score * 0.015
+                level.maxOverlap,
+                level.baseOverlap +
+                    score * level.overlapStep
             );
 
             if (
@@ -460,6 +496,19 @@ function draw() {
         35
     );
 
+    ctx.textAlign = "right";
+
+    ctx.fillText(
+        "Level " +
+            (levelIndex + 1) +
+            ": " +
+            level.name,
+        canvas.width - 20,
+        35
+    );
+
+    ctx.textAlign = "left";
+
     drawPlate();
 
     stack.forEach(function (ingredient) {
@@ -587,10 +636,26 @@ function draw() {
         ctx.fillText(
             "You stacked " +
                 score +
+                " of " +
+                targetPieces +
                 " pieces",
             canvas.width / 2,
             330
         );
+
+        if (levelIndex < levels.length - 1) {
+            const nextLevel = levels[levelIndex + 1];
+
+            ctx.fillText(
+                "Next try: Level " +
+                    (levelIndex + 2) +
+                    " (" +
+                    nextLevel.pieces +
+                    " pieces)",
+                canvas.width / 2,
+                365
+            );
+        }
     }
 }
 
@@ -609,13 +674,13 @@ function handleButtonPress() {
         ) {
             currentIngredient.falling = true;
         }
-    } else if (
-        gameStatus === "won" ||
-        gameStatus === "dailyLimit"
-    ) {
-        chooseNextBurgerSize();
+    } else if (gameStatus === "lost") {
+        // Step down to an easier level after a miss.
+        setLevel(levelIndex + 1);
         resetGame();
     } else {
+        // After a win, start over from the hardest level.
+        setLevel(0);
         resetGame();
     }
 }
