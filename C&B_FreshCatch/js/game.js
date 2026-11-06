@@ -1,6 +1,10 @@
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
+const isPhone = window.matchMedia("(max-width: 700px)").matches;
+canvas.width = isPhone ? 560 : 800;
+canvas.height = isPhone ? 840 : 700;
+
 const CONFIG = {
     winScore: 1500,
     startLives: 3,
@@ -545,7 +549,7 @@ function drawRushBanner() {
     ctx.save();
     ctx.globalAlpha = Math.min(1, rushBanner * 1.5);
     ctx.textAlign = "center";
-    ctx.font = "bold 54px Arial";
+    ctx.font = (canvas.width < 600 ? "bold 38px" : "bold 54px") + " Arial";
     ctx.lineWidth = 8;
     ctx.strokeStyle = "#5a3825";
     ctx.fillStyle = "#ffd166";
